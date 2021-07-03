@@ -33,5 +33,7 @@ func NewJackTokenizer(file string) *JackTokenizer {
 	getTokens := regexp.MustCompile(`(".*")|[a-zA-Z_]+[a-zA-Z0-9_]*|[0-9]+|[+|*|/|\-|{|}|(|)|\[|\]|\.|,|;|<|>|=|~]`)
 	j.tokens = getTokens.FindAllString(sourceCode, -1)
 
+	log.Printf("Tokens found :: %d", len(j.tokens))
+
 	return j
 }
