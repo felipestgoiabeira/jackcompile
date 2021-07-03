@@ -28,7 +28,7 @@ func NewJackTokenizer(file string) *JackTokenizer {
 		log.Fatal(err)
 	}
 
-	clearComents := regexp.MustCompile(`x(p*)y`)
+	clearComents := regexp.MustCompile(`(//.*\n)|(/\*(.|\n)*?\*/)`)
 	sourceCode := clearComents.ReplaceAllString(string(content), " ")
 	getTokens := regexp.MustCompile(`(".*")|[a-zA-Z_]+[a-zA-Z0-9_]*|[0-9]+|[+|*|/|\-|{|}|(|)|\[|\]|\.|,|;|<|>|=|~]`)
 	j.tokens = getTokens.FindAllString(sourceCode, -1)
