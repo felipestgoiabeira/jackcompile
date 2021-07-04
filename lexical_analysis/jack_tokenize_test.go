@@ -1,4 +1,4 @@
-package lexical_analyzer
+package lexical_analysis
 
 import (
 	"bytes"
