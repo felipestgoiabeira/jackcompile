@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 )
 
@@ -23,8 +24,8 @@ func TestNewJackTokenizerMustReturnAEmptySlice(t *testing.T) {
 }
 
 func TestNewJackTokenizerMustBuildTheExpectedXMLTree(t *testing.T) {
-	jackTokenizer := NewJackTokenizer("../resources/complex_code.jack")
-	content, err := ioutil.ReadFile("../resources/xml/complex_code.xml")
+	jackTokenizer := NewJackTokenizer("../resources/Square.jack")
+	content, err := ioutil.ReadFile("../resources/xml/SquareT.xml")
 
 	if err != nil {
 		log.Fatal(err)
@@ -32,12 +33,10 @@ func TestNewJackTokenizerMustBuildTheExpectedXMLTree(t *testing.T) {
 
 	expectedResult := string(content)
 
-	fmt.Println(expectedResult)
-
 	xmlSpecialCharacters := map[string]string{
-		"<":  "&lt",
-		">":  "&gt",
-		"&":  "&#38",
+		"<":  "&lt;",
+		">":  "&gt;",
+		"&":  "&amp;",
 		"'":  "&#39",
 		"\"": "&#34",
 	}
@@ -58,7 +57,25 @@ func TestNewJackTokenizerMustBuildTheExpectedXMLTree(t *testing.T) {
 
 	result := resultBuffer.String()
 
+	writeResultToFile(resultBuffer)
+
 	if expectedResult != result {
 		t.Errorf("The expected result don't match with the result")
+	}
+}
+
+func writeResultToFile(resultBuffer bytes.Buffer) {
+	f, err := os.Create("../resources/tests/results/SquareResult.xml")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer f.Close()
+
+	_, err2 := f.Write(resultBuffer.Bytes())
+
+	if err2 != nil {
+		log.Fatal(err2)
 	}
 }
