@@ -1,9 +1,11 @@
 package lexical_analyzer
 
+type TokenType string
+
 const (
-	KEYWORD = iota
-	SYMBOL
-	INTEGER
-	STRING
-	IDENTIFIER
+	KEYWORD    TokenType = "keyword"
+	SYMBOL               = "symbol"
+	INTEGER              = "integerConst"
+	STRING               = "stringConst"
+	IDENTIFIER           = "identifier"
 )
