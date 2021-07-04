@@ -31,7 +31,7 @@ func TestNewJackTokenizerMustBuildTheExpectedXMLTree(t *testing.T) {
 	}
 
 	expectedResult := string(content)
-	fmt.Println("TESSSSSSSSSSSSSSTE")
+
 	fmt.Println(expectedResult)
 
 	xmlSpecialCharacters := map[string]string{
@@ -61,6 +61,4 @@ func TestNewJackTokenizerMustBuildTheExpectedXMLTree(t *testing.T) {
 	if expectedResult != result {
 		t.Errorf("The expected result don't match with the result")
 	}
-
-	fmt.Println(resultBuffer.String())
 }
