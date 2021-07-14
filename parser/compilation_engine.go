@@ -64,7 +64,8 @@ func CompileExpression(jackTokenizer *la.JackTokenizer) []string {
 		result = append(result, "  "+term)
 	}
 
-	for jackTokenizer.HasMoreTokens() && isOperator(jackTokenizer.GetPeekToken()) {
+	for jackTokenizer.HasPeekToken() && isOperator(jackTokenizer.GetPeekToken()) {
+		jackTokenizer.Advance()
 		result = append(result, "  "+XmlToken(jackTokenizer.GetCurToken()))
 		jackTokenizer.Advance()
 		for _, term := range CompileTerm(jackTokenizer.GetCurToken()) {
@@ -78,13 +79,28 @@ func CompileExpression(jackTokenizer *la.JackTokenizer) []string {
 
 func CompileIfStatement(jackTokenizer *la.JackTokenizer) []string {
 	var result []string
-	result = append(result, XmlToken(jackTokenizer.GetCurToken()))
-	result = append(result, eat("(", jackTokenizer))
+	result = append(result, "<ifStatement>")
+	result = utils.AppendIndent(result, XmlToken(jackTokenizer.GetCurToken()))
+	result = utils.AppendIndent(result, eat("(", jackTokenizer))
 	jackTokenizer.Advance()
-	result = utils.AppenIndent(result, CompileExpression(jackTokenizer))
-	result = append(result, eat(")", jackTokenizer))
-	result = append(result, eat("{", jackTokenizer))
-	result = append(result, eat("}", jackTokenizer))
+	result = utils.AppendIndent(result, CompileExpression(jackTokenizer)...)
+	result = utils.AppendIndent(result, eat(")", jackTokenizer))
+	result = utils.AppendIndent(result, eat("{", jackTokenizer))
+	result = utils.AppendIndent(result, eat("}", jackTokenizer))
+	result = append(result, "</ifStatement>")
 	return result
+}
 
+func CompileLetStatement(jackTokenizer *la.JackTokenizer) []string {
+	var result []string
+	result = append(result, "<letStatement>")
+	result = utils.AppendIndent(result, XmlToken(jackTokenizer.GetCurToken()))
+	jackTokenizer.Advance()
+	result = utils.AppendIndent(result, XmlToken(jackTokenizer.GetCurToken()))
+	result = utils.AppendIndent(result, eat("=", jackTokenizer))
+	jackTokenizer.Advance()
+	result = utils.AppendIndent(result, CompileExpression(jackTokenizer)...)
+	result = utils.AppendIndent(result, eat(";", jackTokenizer))
+	result = append(result, "</letStatement>")
+	return result
 }

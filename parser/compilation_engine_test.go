@@ -29,3 +29,11 @@ func TestIfStatement(t *testing.T) {
 		fmt.Println(r)
 	}
 }
+
+func TestLetStatement(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/letStatement.jack")
+	result := CompileLetStatement(jackTokenizer)
+	for _, r := range result {
+		fmt.Println(r)
+	}
+}
