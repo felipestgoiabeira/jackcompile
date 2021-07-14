@@ -24,6 +24,18 @@ func NewToken(token string) *Token {
 	return t
 }
 
+func (t *Token) GetToken() string {
+	return t.token
+}
+
+func (t *Token) GetType() TokenType {
+	return t.tokenType
+}
+
+func (t *Token) SetToken(token string) {
+	t.token = token
+}
+
 func (t *Token) isKeyword() {
 	if t.tokenType != "" {
 		return
