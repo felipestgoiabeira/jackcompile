@@ -53,3 +53,11 @@ func TestCompileExpressionList(t *testing.T) {
 		fmt.Println(r)
 	}
 }
+
+func TestCompileDoStatement(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/doStatement.jack")
+	result := CompileDoStatement(jackTokenizer)
+	for _, r := range result {
+		fmt.Println(r)
+	}
+}
