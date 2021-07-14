@@ -17,6 +17,19 @@ func eat(expectedToken string, jackTokenizer *la.JackTokenizer) string {
 	return XmlToken(token)
 }
 
+func isExpectedToken(expectedToken string, token la.Token) {
+	if expectedToken != token.GetToken() {
+		panic(errors.New(expectedToken + " expected, got " + token.GetToken()))
+	}
+}
+
+func isOptionalExpectedToken(expectedToken string, token la.Token) bool {
+	if expectedToken == token.GetToken() {
+		return true
+	}
+	return false
+}
+
 func isOperator(op la.Token) bool {
 	token := op.GetToken()
 	isOperator, _ := regexp.MatchString(
@@ -79,6 +92,7 @@ func CompileExpression(jackTokenizer *la.JackTokenizer) []string {
 
 func CompileIfStatement(jackTokenizer *la.JackTokenizer) []string {
 	var result []string
+	isExpectedToken("if", jackTokenizer.GetCurToken())
 	result = append(result, "<ifStatement>")
 	result = utils.AppendIndent(result, XmlToken(jackTokenizer.GetCurToken()))
 	result = utils.AppendIndent(result, eat("(", jackTokenizer))
@@ -93,6 +107,7 @@ func CompileIfStatement(jackTokenizer *la.JackTokenizer) []string {
 
 func CompileLetStatement(jackTokenizer *la.JackTokenizer) []string {
 	var result []string
+	isExpectedToken("let", jackTokenizer.GetCurToken())
 	result = append(result, "<letStatement>")
 	result = utils.AppendIndent(result, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
@@ -102,5 +117,40 @@ func CompileLetStatement(jackTokenizer *la.JackTokenizer) []string {
 	result = utils.AppendIndent(result, CompileExpression(jackTokenizer)...)
 	result = utils.AppendIndent(result, eat(";", jackTokenizer))
 	result = append(result, "</letStatement>")
+	return result
+}
+
+func CompileReturnStatement(jackTokenizer *la.JackTokenizer) []string {
+	var result []string
+	isExpectedToken("return", jackTokenizer.GetCurToken())
+	result = append(result, "<returnStatement>")
+	result = utils.AppendIndent(result, XmlToken(jackTokenizer.GetCurToken()))
+
+	peekToken := jackTokenizer.GetPeekToken()
+	if peekToken.GetToken() == ";" {
+		result = utils.AppendIndent(result, eat(";", jackTokenizer))
+		result = append(result, "</returnStatement>")
+		return result
+	}
+
+	jackTokenizer.Advance()
+
+	result = utils.AppendIndent(result, CompileExpression(jackTokenizer)...)
+	result = utils.AppendIndent(result, eat(";", jackTokenizer))
+	result = append(result, "</returnStatement>")
+
+	return result
+}
+
+func CompileExpressionList(jackTokenizer *la.JackTokenizer) []string {
+	var result []string
+	result = append(result, "<expressionList>")
+	result = utils.AppendIndent(result, CompileExpression(jackTokenizer)...)
+	for jackTokenizer.HasPeekToken() && isOptionalExpectedToken(",", jackTokenizer.GetPeekToken()) {
+		result = utils.AppendIndent(result, eat(",", jackTokenizer))
+		jackTokenizer.Advance()
+		result = utils.AppendIndent(result, CompileExpression(jackTokenizer)...)
+	}
+	result = append(result, "</expressionList>")
 	return result
 }
