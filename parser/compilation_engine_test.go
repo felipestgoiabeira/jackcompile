@@ -103,7 +103,7 @@ func TestCompileClassVarDeclaration(t *testing.T) {
 }
 
 func TestCompileClass(t *testing.T) {
-	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/Main.jack")
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/LessSquare.jack")
 	result := CompileClass(jackTokenizer)
 	var resultBuffer bytes.Buffer
 	for _, r := range result {
