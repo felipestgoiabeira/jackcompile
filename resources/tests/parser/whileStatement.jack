@@ -1,9 +1,6 @@
-if(count < 100){
-    if(a){}
+while(a < b){
     if(count < 100){
     }
-    do game();
+
     do game.dispose(a + b);
-}else{
-    
 }

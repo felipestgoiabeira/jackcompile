@@ -1,1 +1,1 @@
-do game.dispose(a + b);
+do game();

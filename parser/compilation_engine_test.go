@@ -1,8 +1,10 @@
 package parser
 
 import (
+	"bytes"
 	"fmt"
 	la "jackcompile/lexical_analysis"
+	"jackcompile/utils"
 	"testing"
 )
 
@@ -60,4 +62,54 @@ func TestCompileDoStatement(t *testing.T) {
 	for _, r := range result {
 		fmt.Println(r)
 	}
+}
+
+func TestCompileWhileStatement(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/whileStatement.jack")
+	result := CompileWhileStatement(jackTokenizer)
+	for _, r := range result {
+		fmt.Println(r)
+	}
+}
+func TestCompileVarDeclaration(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/varDec.jack")
+	result := CompileVarDeclaration(jackTokenizer)
+	for _, r := range result {
+		fmt.Println(r)
+	}
+}
+func TestCompileParameterList(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/parameterList.jack")
+	result := CompileParameterList(jackTokenizer)
+	for _, r := range result {
+		fmt.Println(r)
+	}
+}
+
+func TestCompileSubroutine(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/subroutine.jack")
+	result := CompileSubroutine(jackTokenizer)
+	for _, r := range result {
+		fmt.Println(r)
+	}
+}
+
+func TestCompileClassVarDeclaration(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/classVarDec.jack")
+	result := CompileClassVarDec(jackTokenizer)
+	for _, r := range result {
+		fmt.Println(r)
+	}
+}
+
+func TestCompileClass(t *testing.T) {
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/Main.jack")
+	result := CompileClass(jackTokenizer)
+	var resultBuffer bytes.Buffer
+	for _, r := range result {
+		resultBuffer.WriteString(r + "\n")
+		fmt.Println(r)
+	}
+
+	utils.WriteResultToFile(resultBuffer, "LessSquare.xml")
 }

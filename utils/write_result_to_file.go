@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-func writeResultToFile(resultBuffer bytes.Buffer) {
-	f, err := os.Create("../resources/tests/results/SquareResult.xml")
+func WriteResultToFile(resultBuffer bytes.Buffer, file string) {
+	f, err := os.Create("../resources/tests/results/" + file)
 
 	if err != nil {
 		log.Fatal(err)
