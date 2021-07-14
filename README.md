@@ -18,3 +18,16 @@ To execute the specific test that generates the file, run:
 ```
 go test -run ^TestNewJackTokenizerMustBuildTheExpectedXMLTree$ jackcompile/lexical_analysis
 ```
+
+To execute the tests about the parse, run:
+```
+go test jackcompile/parser
+```
+
+A file will be created in the folder */resources/tests/results*, containing the lexical analysis of */resources/tests/parser/LessSquare.jack* class, in XML format.
+
+To execute the specific test that generates the file, run:
+
+```
+go test -run ^TestJackCompile$ jackcompile/parser
+```
