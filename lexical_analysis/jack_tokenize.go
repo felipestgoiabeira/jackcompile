@@ -46,8 +46,8 @@ func (j *JackTokenizer) HasPeekToken() bool {
 	return !(int(posCur) > len(j.tokens))
 }
 
-func (j *JackTokenizer) GetCurToken() Token {
-	return j.tokens[j.pos]
+func (j *JackTokenizer) GetCurToken() *Token {
+	return &j.tokens[j.pos]
 }
 
 func (j *JackTokenizer) GetCurTokenType() TokenType {

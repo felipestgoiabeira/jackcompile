@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-func CompileStatement(statement la.Token, jackTokenize *la.JackTokenizer) []string {
+func CompileStatement(statement *la.Token, jackTokenize *la.JackTokenizer) []string {
 	var xmlResult []string
 	statements := map[string]func(*la.JackTokenizer) []string{
 		"let":    CompileLetStatement,
@@ -39,7 +39,7 @@ func eat(expectedToken string, jackTokenizer *la.JackTokenizer, xmlResult *[]str
 	utils.AppendIndent(xmlResult, xmlToken(token))
 }
 
-func isExpectedToken(expectedToken string, token la.Token) {
+func isExpectedToken(expectedToken string, token *la.Token) {
 	if expectedToken != token.GetToken() {
 		panic(errors.New(expectedToken + " expected, got " + token.GetToken()))
 	}
@@ -52,7 +52,7 @@ func isOptionalExpectedToken(expectedToken string, token la.Token) bool {
 	return false
 }
 
-func isOneOf(regex string, op la.Token) bool {
+func isOneOf(regex string, op *la.Token) bool {
 	token := op.GetToken()
 	isOperator, _ := regexp.MatchString(
 		regex,
@@ -70,7 +70,7 @@ func isOperator(op la.Token) bool {
 	return isOperator
 }
 
-func xmlToken(token la.Token) string {
+func xmlToken(token *la.Token) string {
 	xmlSpecialCharacters := map[string]string{
 		"<":  "&lt;",
 		">":  "&gt;",
@@ -86,16 +86,28 @@ func xmlToken(token la.Token) string {
 }
 
 func GetTokenTypeTerms() []la.TokenType {
-	return []la.TokenType{la.IDENTIFIER, la.INTEGER, la.STRING}
+	return []la.TokenType{la.IDENTIFIER, la.INTEGER, la.STRING, la.KEYWORD}
 }
 
-func CompileTerm(token la.Token) []string {
-	if !utils.ContainsTokenType(GetTokenTypeTerms(), token.GetType()) {
-		panic(errors.New("A term expected was not found, token found :: " + token.GetToken()))
-	}
+func CompileTerm(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
+	if jackTokenizer.GetCurToken().GetToken() == "(" {
+		xmlResult = append(xmlResult, "<term>")
+		xmlTokenAppendIndent(&xmlResult, jackTokenizer)
+		jackTokenizer.Advance()
+		utils.AppendIndent(&xmlResult, CompileExpression(jackTokenizer)...)
+		jackTokenizer.Advance()
+		isExpectedToken(")", jackTokenizer.GetCurToken())
+		xmlTokenAppendIndent(&xmlResult, jackTokenizer)
+		xmlResult = append(xmlResult, "</term>")
+		return xmlResult
+	}
+	if !utils.ContainsTokenType(GetTokenTypeTerms(), jackTokenizer.GetCurToken().GetType()) {
+		panic(errors.New("A term expected was not found, token found :: " + jackTokenizer.GetCurToken().GetToken()))
+	}
+
 	xmlResult = append(xmlResult, "<term>")
-	xmlResult = append(xmlResult, "  "+xmlToken(token))
+	xmlResult = append(xmlResult, "  "+xmlToken(jackTokenizer.GetCurToken()))
 	xmlResult = append(xmlResult, "</term>")
 	return xmlResult
 }
@@ -104,7 +116,7 @@ func CompileExpression(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	xmlResult = append(xmlResult, "<expression>")
 
-	for _, term := range CompileTerm(jackTokenizer.GetCurToken()) {
+	for _, term := range CompileTerm(jackTokenizer) {
 		xmlResult = append(xmlResult, "  "+term)
 	}
 
@@ -112,7 +124,7 @@ func CompileExpression(jackTokenizer *la.JackTokenizer) []string {
 		jackTokenizer.Advance()
 		xmlResult = append(xmlResult, "  "+xmlToken(jackTokenizer.GetCurToken()))
 		jackTokenizer.Advance()
-		for _, term := range CompileTerm(jackTokenizer.GetCurToken()) {
+		for _, term := range CompileTerm(jackTokenizer) {
 			xmlResult = append(xmlResult, "  "+term)
 		}
 	}
@@ -280,8 +292,13 @@ func CompileParameterList(jackTokenizer *la.JackTokenizer) []string {
 		xmlResult = append(xmlResult, "</parameterList>")
 		return xmlResult
 	}
+	jackTokenizer.Advance()
+	xmlTokenAppendIndent(&xmlResult, jackTokenizer)
+	jackTokenizer.Advance()
 	xmlTokenAppendIndent(&xmlResult, jackTokenizer)
 	for jackTokenizer.HasPeekToken() && isOptionalExpectedToken(",", jackTokenizer.GetPeekToken()) {
+		jackTokenizer.Advance()
+		xmlTokenAppendIndent(&xmlResult, jackTokenizer)
 		jackTokenizer.Advance()
 		xmlTokenAppendIndent(&xmlResult, jackTokenizer)
 		jackTokenizer.Advance()
@@ -326,10 +343,6 @@ func CompileSubroutine(jackTokenizer *la.JackTokenizer) []string {
 	jackTokenizer.Advance()
 	xmlTokenAppendIndent(&xmlResult, jackTokenizer)
 	jackTokenizer.Advance()
-	// if isOptionalExpectedToken("new", jackTokenizer.GetCurToken()) {
-	// 	xmlTokenAppendIndent(&xmlResult, jackTokenizer)
-	// 	//jackTokenizer.Advance()
-	// }
 	xmlTokenAppendIndent(&xmlResult, jackTokenizer)
 	eat("(", jackTokenizer, &xmlResult)
 	utils.AppendIndent(&xmlResult, CompileParameterList(jackTokenizer)...)
@@ -350,12 +363,17 @@ func CompileClassVarDec(jackTokenizer *la.JackTokenizer) []string {
 	xmlTokenAppendIndent(&xmlResult, jackTokenizer)
 	jackTokenizer.Advance()
 	xmlTokenAppendIndent(&xmlResult, jackTokenizer)
+	for jackTokenizer.HasPeekToken() && isOptionalExpectedToken(",", jackTokenizer.GetPeekToken()) {
+		eat(",", jackTokenizer, &xmlResult)
+		jackTokenizer.Advance()
+		xmlTokenAppendIndent(&xmlResult, jackTokenizer)
+	}
 	eat(";", jackTokenizer, &xmlResult)
 	xmlResult = append(xmlResult, "</classVarDec>")
 	return xmlResult
 }
 
-func compileDeclaration(declaration la.Token, jackTokenize *la.JackTokenizer) ([]string, bool) {
+func compileDeclaration(declaration *la.Token, jackTokenize *la.JackTokenizer) ([]string, bool) {
 
 	var xmlResult []string
 	declarations := map[string]func(*la.JackTokenizer) []string{

@@ -8,14 +8,6 @@ import (
 	"testing"
 )
 
-func TestCompileTerm(t *testing.T) {
-	token := la.NewToken("test")
-	result := CompileTerm(*token)
-	for _, r := range result {
-		fmt.Println(r)
-	}
-}
-
 func TestCompileExpression(t *testing.T) {
 	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/expression.jack")
 	result := CompileExpression(jackTokenizer)
@@ -103,7 +95,7 @@ func TestCompileClassVarDeclaration(t *testing.T) {
 }
 
 func TestCompileClass(t *testing.T) {
-	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/LessSquare.jack")
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/SquareGame.jack")
 	result := CompileClass(jackTokenizer)
 	var resultBuffer bytes.Buffer
 	for _, r := range result {

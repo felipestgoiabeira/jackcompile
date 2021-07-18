@@ -8,7 +8,7 @@ import (
 )
 
 func TestJackCompile(t *testing.T) {
-	jackcompile := NewJackCompile("../resources/tests/parser/LessSquare.jack")
+	jackcompile := NewJackCompile("../resources/tests/parser/SquareGame.jack")
 
 	result := jackcompile.GetResult()
 	var resultBuffer bytes.Buffer
