@@ -24,7 +24,6 @@ func CompileStatement(statement la.Token, jackTokenize *la.JackTokenizer) []stri
 
 	}
 	panic(errors.New("Not a statement"))
-
 }
 
 func xmlTokenAppendIndent(xmlResult *[]string, jackTokenizer *la.JackTokenizer) {
@@ -121,8 +120,6 @@ func CompileExpression(jackTokenizer *la.JackTokenizer) []string {
 	xmlResult = append(xmlResult, "</expression>")
 	return xmlResult
 }
-
-
 
 func CompileIfStatement(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
@@ -250,10 +247,12 @@ func CompileWhileStatement(jackTokenizer *la.JackTokenizer) []string {
 
 	eat(")", jackTokenizer, &xmlResult)
 	eat("{", jackTokenizer, &xmlResult)
+	utils.AppendIndent(&xmlResult, "<statements>")
 	for jackTokenizer.HasPeekToken() && !isOptionalExpectedToken("}", jackTokenizer.GetPeekToken()) {
 		jackTokenizer.Advance()
 		utils.AppendIndent(&xmlResult, CompileStatement(jackTokenizer.GetCurToken(), jackTokenizer)...)
 	}
+	utils.AppendIndent(&xmlResult, "</statements>")
 	eat("}", jackTokenizer, &xmlResult)
 	xmlResult = append(xmlResult, "</whileStatement>")
 	return xmlResult
