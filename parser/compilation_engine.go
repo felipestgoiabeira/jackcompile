@@ -19,7 +19,7 @@ func CompileStatement(statement la.Token, jackTokenize *la.JackTokenizer) []stri
 	}
 	compileStatement, exists := statements[statement.GetToken()]
 	if exists {
-		xmlResult = utils.AppendIndent(xmlResult, compileStatement(jackTokenize)...)
+		utils.AppendIndent(&xmlResult, compileStatement(jackTokenize)...)
 		return xmlResult
 
 	}
@@ -122,20 +122,20 @@ func CompileIfStatement(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	isExpectedToken("if", jackTokenizer.GetCurToken())
 	xmlResult = append(xmlResult, "<ifStatement>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-	xmlResult = utils.AppendIndent(xmlResult, eat("(", jackTokenizer))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, eat("(", jackTokenizer))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, CompileExpression(jackTokenizer)...)
-	xmlResult = utils.AppendIndent(xmlResult, eat(")", jackTokenizer))
-	xmlResult = utils.AppendIndent(xmlResult, eat("{", jackTokenizer))
-	xmlResult = utils.AppendIndent(xmlResult, compileStatements(jackTokenizer)...)
-	xmlResult = utils.AppendIndent(xmlResult, eat("}", jackTokenizer))
+	utils.AppendIndent(&xmlResult, CompileExpression(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, eat(")", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat("{", jackTokenizer))
+	utils.AppendIndent(&xmlResult, compileStatements(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, eat("}", jackTokenizer))
 	if isOptionalExpectedToken("else", jackTokenizer.GetPeekToken()) {
 		jackTokenizer.Advance()
-		xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-		xmlResult = utils.AppendIndent(xmlResult, eat("{", jackTokenizer))
-		xmlResult = utils.AppendIndent(xmlResult, compileStatements(jackTokenizer)...)
-		xmlResult = utils.AppendIndent(xmlResult, eat("}", jackTokenizer))
+		utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+		utils.AppendIndent(&xmlResult, eat("{", jackTokenizer))
+		utils.AppendIndent(&xmlResult, compileStatements(jackTokenizer)...)
+		utils.AppendIndent(&xmlResult, eat("}", jackTokenizer))
 	}
 	xmlResult = append(xmlResult, "</ifStatement>")
 	return xmlResult
@@ -145,13 +145,13 @@ func CompileLetStatement(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	isExpectedToken("let", jackTokenizer.GetCurToken())
 	xmlResult = append(xmlResult, "<letStatement>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-	xmlResult = utils.AppendIndent(xmlResult, eat("=", jackTokenizer))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, eat("=", jackTokenizer))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, CompileExpression(jackTokenizer)...)
-	xmlResult = utils.AppendIndent(xmlResult, eat(";", jackTokenizer))
+	utils.AppendIndent(&xmlResult, CompileExpression(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, eat(";", jackTokenizer))
 	xmlResult = append(xmlResult, "</letStatement>")
 	return xmlResult
 }
@@ -160,19 +160,19 @@ func CompileReturnStatement(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	isExpectedToken("return", jackTokenizer.GetCurToken())
 	xmlResult = append(xmlResult, "<returnStatement>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 
 	peekToken := jackTokenizer.GetPeekToken()
 	if peekToken.GetToken() == ";" {
-		xmlResult = utils.AppendIndent(xmlResult, eat(";", jackTokenizer))
+		utils.AppendIndent(&xmlResult, eat(";", jackTokenizer))
 		xmlResult = append(xmlResult, "</returnStatement>")
 		return xmlResult
 	}
 
 	jackTokenizer.Advance()
 
-	xmlResult = utils.AppendIndent(xmlResult, CompileExpression(jackTokenizer)...)
-	xmlResult = utils.AppendIndent(xmlResult, eat(";", jackTokenizer))
+	utils.AppendIndent(&xmlResult, CompileExpression(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, eat(";", jackTokenizer))
 	xmlResult = append(xmlResult, "</returnStatement>")
 
 	return xmlResult
@@ -186,11 +186,11 @@ func CompileExpressionList(jackTokenizer *la.JackTokenizer) []string {
 		xmlResult = append(xmlResult, "</expressionList>")
 		return xmlResult
 	}
-	xmlResult = utils.AppendIndent(xmlResult, CompileExpression(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, CompileExpression(jackTokenizer)...)
 	for jackTokenizer.HasPeekToken() && isOptionalExpectedToken(",", jackTokenizer.GetPeekToken()) {
-		xmlResult = utils.AppendIndent(xmlResult, eat(",", jackTokenizer))
+		utils.AppendIndent(&xmlResult, eat(",", jackTokenizer))
 		jackTokenizer.Advance()
-		xmlResult = utils.AppendIndent(xmlResult, CompileExpression(jackTokenizer)...)
+		utils.AppendIndent(&xmlResult, CompileExpression(jackTokenizer)...)
 	}
 	xmlResult = append(xmlResult, "</expressionList>")
 	return xmlResult
@@ -198,15 +198,15 @@ func CompileExpressionList(jackTokenizer *la.JackTokenizer) []string {
 
 func compileExpressionListInsideParentheses(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
-	xmlResult = utils.AppendIndent(xmlResult, eat("(", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat("(", jackTokenizer))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, CompileExpressionList(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, CompileExpressionList(jackTokenizer)...)
 	curToken := jackTokenizer.GetCurToken()
 	if curToken.GetToken() == ")" {
-		xmlResult = utils.AppendIndent(xmlResult, XmlToken(curToken))
+		utils.AppendIndent(&xmlResult, XmlToken(curToken))
 		return xmlResult
 	}
-	xmlResult = utils.AppendIndent(xmlResult, eat(")", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat(")", jackTokenizer))
 	return xmlResult
 }
 
@@ -214,21 +214,21 @@ func CompileDoStatement(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	isExpectedToken("do", jackTokenizer.GetCurToken())
 	xmlResult = append(xmlResult, "<doStatement>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	peekToken := jackTokenizer.GetPeekToken()
 	if peekToken.GetToken() == "(" {
 		xmlResult = append(xmlResult, compileExpressionListInsideParentheses(jackTokenizer)...)
-		xmlResult = utils.AppendIndent(xmlResult, eat(";", jackTokenizer))
+		utils.AppendIndent(&xmlResult, eat(";", jackTokenizer))
 		xmlResult = append(xmlResult, "</doStatement>")
 		return xmlResult
 	}
-	xmlResult = utils.AppendIndent(xmlResult, eat(".", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat(".", jackTokenizer))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	xmlResult = append(xmlResult, compileExpressionListInsideParentheses(jackTokenizer)...)
-	xmlResult = utils.AppendIndent(xmlResult, eat(";", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat(";", jackTokenizer))
 	xmlResult = append(xmlResult, "</doStatement>")
 	return xmlResult
 }
@@ -237,18 +237,18 @@ func CompileWhileStatement(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	isExpectedToken("while", jackTokenizer.GetCurToken())
 	xmlResult = append(xmlResult, "<whileStatement>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-	xmlResult = utils.AppendIndent(xmlResult, eat("(", jackTokenizer))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, eat("(", jackTokenizer))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, CompileExpression(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, CompileExpression(jackTokenizer)...)
 
-	xmlResult = utils.AppendIndent(xmlResult, eat(")", jackTokenizer))
-	xmlResult = utils.AppendIndent(xmlResult, eat("{", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat(")", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat("{", jackTokenizer))
 	for jackTokenizer.HasPeekToken() && !isOptionalExpectedToken("}", jackTokenizer.GetPeekToken()) {
 		jackTokenizer.Advance()
-		xmlResult = utils.AppendIndent(xmlResult, CompileStatement(jackTokenizer.GetCurToken(), jackTokenizer)...)
+		utils.AppendIndent(&xmlResult, CompileStatement(jackTokenizer.GetCurToken(), jackTokenizer)...)
 	}
-	xmlResult = utils.AppendIndent(xmlResult, eat("}", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat("}", jackTokenizer))
 	xmlResult = append(xmlResult, "</whileStatement>")
 	return xmlResult
 }
@@ -257,12 +257,12 @@ func CompileVarDeclaration(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	isExpectedToken("var", jackTokenizer.GetCurToken())
 	xmlResult = append(xmlResult, "<varDec>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-	xmlResult = utils.AppendIndent(xmlResult, eat(";", jackTokenizer))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, eat(";", jackTokenizer))
 	xmlResult = append(xmlResult, "</varDec>")
 	return xmlResult
 }
@@ -275,12 +275,12 @@ func CompileParameterList(jackTokenizer *la.JackTokenizer) []string {
 		xmlResult = append(xmlResult, "</parameterList>")
 		return xmlResult
 	}
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	for jackTokenizer.HasPeekToken() && isOptionalExpectedToken(",", jackTokenizer.GetPeekToken()) {
 		jackTokenizer.Advance()
-		xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+		utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 		jackTokenizer.Advance()
-		xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+		utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	}
 	xmlResult = append(xmlResult, "</parameterList>")
 	return xmlResult
@@ -300,13 +300,13 @@ func compileStatements(jackTokenizer *la.JackTokenizer) []string {
 func compileSubroutineBody(jackTokenizer *la.JackTokenizer) []string {
 	var xmlResult []string
 	xmlResult = append(xmlResult, "<subroutineBody>")
-	xmlResult = utils.AppendIndent(xmlResult, eat("{", jackTokenizer))
+	utils.AppendIndent(&xmlResult, eat("{", jackTokenizer))
 	for jackTokenizer.HasPeekToken() && isOptionalExpectedToken("var", jackTokenizer.GetPeekToken()) {
 		jackTokenizer.Advance()
-		xmlResult = utils.AppendIndent(xmlResult, CompileVarDeclaration(jackTokenizer)...)
+		utils.AppendIndent(&xmlResult, CompileVarDeclaration(jackTokenizer)...)
 	}
-	xmlResult = utils.AppendIndent(xmlResult, compileStatements(jackTokenizer)...)
-	xmlResult = utils.AppendIndent(xmlResult, eat("}", jackTokenizer))
+	utils.AppendIndent(&xmlResult, compileStatements(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, eat("}", jackTokenizer))
 	xmlResult = append(xmlResult, "</subroutineBody>")
 	return xmlResult
 }
@@ -317,19 +317,19 @@ func CompileSubroutine(jackTokenizer *la.JackTokenizer) []string {
 	}
 	var xmlResult []string
 	xmlResult = append(xmlResult, "<subroutineDec>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
 	// if isOptionalExpectedToken("new", jackTokenizer.GetCurToken()) {
-	// 	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	// 	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	// 	//jackTokenizer.Advance()
 	// }
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-	xmlResult = utils.AppendIndent(xmlResult, eat("(", jackTokenizer))
-	xmlResult = utils.AppendIndent(xmlResult, CompileParameterList(jackTokenizer)...)
-	xmlResult = utils.AppendIndent(xmlResult, eat(")", jackTokenizer))
-	xmlResult = utils.AppendIndent(xmlResult, compileSubroutineBody(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, eat("(", jackTokenizer))
+	utils.AppendIndent(&xmlResult, CompileParameterList(jackTokenizer)...)
+	utils.AppendIndent(&xmlResult, eat(")", jackTokenizer))
+	utils.AppendIndent(&xmlResult, compileSubroutineBody(jackTokenizer)...)
 	xmlResult = append(xmlResult, "</subroutineDec>")
 	return xmlResult
 }
@@ -340,12 +340,12 @@ func CompileClassVarDec(jackTokenizer *la.JackTokenizer) []string {
 	}
 	var xmlResult []string
 	xmlResult = append(xmlResult, "<classVarDec>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-	xmlResult = utils.AppendIndent(xmlResult, eat(";", jackTokenizer))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, eat(";", jackTokenizer))
 	xmlResult = append(xmlResult, "</classVarDec>")
 	return xmlResult
 }
@@ -363,7 +363,7 @@ func compileDeclaration(declaration la.Token, jackTokenize *la.JackTokenizer) ([
 
 	compileDeclaration, valid := declarations[declaration.GetToken()]
 	if valid {
-		xmlResult = utils.AppendIndent(xmlResult, compileDeclaration(jackTokenize)...)
+		utils.AppendIndent(&xmlResult, compileDeclaration(jackTokenize)...)
 	}
 	return xmlResult, valid
 }
@@ -372,10 +372,10 @@ func CompileClass(jackTokenizer *la.JackTokenizer) []string {
 	isExpectedToken("class", jackTokenizer.GetCurToken())
 	var xmlResult []string
 	xmlResult = append(xmlResult, "<class>")
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	jackTokenizer.Advance()
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
-	xmlResult = utils.AppendIndent(xmlResult, eat("{", jackTokenizer))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, eat("{", jackTokenizer))
 	totalCompiled := false
 	for !totalCompiled {
 		jackTokenizer.Advance()
@@ -385,7 +385,7 @@ func CompileClass(jackTokenizer *la.JackTokenizer) []string {
 		}
 		xmlResult = append(xmlResult, compiled...)
 	}
-	xmlResult = utils.AppendIndent(xmlResult, XmlToken(jackTokenizer.GetCurToken()))
+	utils.AppendIndent(&xmlResult, XmlToken(jackTokenizer.GetCurToken()))
 	xmlResult = append(xmlResult, "</class>")
 	return xmlResult
 }
