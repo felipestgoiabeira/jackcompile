@@ -2,7 +2,9 @@ package parser
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	la "jackcompile/lexical_analysis"
 	"jackcompile/utils"
 	"testing"
@@ -103,5 +105,17 @@ func TestCompileClass(t *testing.T) {
 		fmt.Println(r)
 	}
 
-	utils.WriteResultToFile(resultBuffer, "LessSquare.xml")
+	content, err := ioutil.ReadFile("../resources/xml/SquareGame.xml")
+
+	if err != nil {
+		panic(err)
+	}
+
+	expectedResult := string(content)
+	resultString := resultBuffer.String()
+	if expectedResult != resultString {
+		panic(errors.New("The result isn't valid!"))
+	}
+
+	utils.WriteResultToFile(resultBuffer, "SquareGame.xml")
 }
