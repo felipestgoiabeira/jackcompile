@@ -97,7 +97,7 @@ func TestCompileClassVarDeclaration(t *testing.T) {
 }
 
 func TestCompileClass(t *testing.T) {
-	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/SquareGame.jack")
+	jackTokenizer := la.NewJackTokenizer("../resources/tests/parser/Square.jack")
 	result := CompileClass(jackTokenizer)
 	var resultBuffer bytes.Buffer
 	for _, r := range result {
@@ -105,7 +105,7 @@ func TestCompileClass(t *testing.T) {
 		fmt.Println(r)
 	}
 
-	content, err := ioutil.ReadFile("../resources/xml/SquareGame.xml")
+	content, err := ioutil.ReadFile("../resources/xml/Square.xml")
 
 	if err != nil {
 		panic(err)
@@ -117,5 +117,5 @@ func TestCompileClass(t *testing.T) {
 		panic(errors.New("The result isn't valid!"))
 	}
 
-	utils.WriteResultToFile(resultBuffer, "SquareGame.xml")
+	utils.WriteResultToFile(resultBuffer, "Square.xml")
 }
